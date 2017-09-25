@@ -1,8 +1,13 @@
 <<template>
   <div class="box">
     <h3 class="title">App {{ movieId }}</h3>
+    <p>Count: {{status.count }} , Price: {{status.price}} </p>
     <Movie @chooseMovie="handleChooseMovie" :movieId="movieId" />
-    <seat @chooseSeat="handleChooseSeat" :movieId="movieId" />
+    <seat 
+    @chooseSeat="handleChooseSeat" 
+    :movieId="movieId" 
+    :selectSeats="selectSeats"
+    />
   </div>
   
   
@@ -19,12 +24,21 @@
     data() {
       return {
         movieId: '',
-        selectSeats:[]
+        selectSeats:[],
+        status: {count: 0, price: 0}
       }
     },
     methods: {
       handleChooseMovie(movieId){
-        console.log(movieId)
+        if (this.status.count != 0){
+          if (confirm('Data will be lost ?')){
+            this.status = {count: 0 , price: 0}
+            this.selectSeats = []
+          }
+          else {
+            return false
+          }
+        }
         this.movieId = movieId
       },
       handleChooseSeat(seat){
@@ -33,8 +47,15 @@
         if (idx === -1){
         this.selectSeats.push(seat)
         }
+        else {
+          this.selectSeats.splice(idx,1)
+        }
         
-        console.log(ids)
+        this.status = this.selectSeats.reduce((summary, s) => {
+           summary.count++
+           summary.price += s.price
+           return summary
+        }, { count:0,price:0})
       }
     }
   }
